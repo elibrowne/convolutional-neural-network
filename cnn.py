@@ -145,22 +145,25 @@ net.model.fit(
 	callbacks = cb.EarlyStopping(monitor = 'val_loss', patience = 2, restore_best_weights = True) # end the model when it's good enough
 )
 
-# Load in test images (outside dataset) using Keras preprocessing
-maskImg = image.load_img('test-images/me_w_mask.jpg', target_size = (128, 128))
-maskImg = image.img_to_array(maskImg) # set up as tensor 
-maskImg = np.expand_dims(maskImg, axis = 0) # add batch_size = 1 so model doesn't break
-prediction = net.model.predict(maskImg)
-print(prediction)
+def testImage(pathToImage):
+	# Load the image from the path using Keras
+	imageToTest = image.load_img(pathToImage, target_size = (128, 128))
+	imageToTest = image.img_to_array(imageToTest) # convert to array
+	# This is to resolve an issue with the tensor. The prediction requires
+	# a batch size, so this adds a batch size of 1 to the start of the array.
+	imageToTest = np.expand_dims(imageToTest, axis = 0)
+	prediction = net.model.predict(imageToTest)
+	print("Numeric prediction values for " + pathToImage + ":")
+	print(prediction)
+	print("Verdict: ")
+	print(np.argmax(prediction, axis = 1))
 
-badMaskImg = image.load_img('test-images/me_w_bad_mask.jpg', target_size = (128, 128))
-badMaskImg = image.img_to_array(badMaskImg)
-badMaskImg = np.expand_dims(badMaskImg, axis = 0)
-prediction = net.model.predict(badMaskImg)
-print(prediction)
+net.model.save("weights-from-runs")
 
 # Load in test images (outside dataset) using Keras preprocessing
-maskImg = image.load_img('test-images/kasie_w_mask.png', target_size = (128, 128))
-maskImg = image.img_to_array(maskImg) # set up as tensor 
-maskImg = np.expand_dims(maskImg, axis = 0) # add batch_size = 1 so model doesn't break
-prediction = net.model.predict(maskImg)
-print(prediction)
+testImage('test-images/eli_w_mask.jpg')
+testImage('test-images/eli_w_bad_mask.jpg')
+testImage('test-images/kasie_w_mask.jpg')
+testImage('test-images/jasper_w_mask.jpg')
+testImage('test-images/sasha_w_bad_mask.jpg')
+testImage('test-images/sasha_w_mask.jpg')
