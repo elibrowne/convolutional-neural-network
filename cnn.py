@@ -158,7 +158,7 @@ def testImage(pathToImage):
 	print("Verdict: ")
 	print(np.argmax(prediction, axis = 1))
 
-net.model.save("weights-from-runs")
+net.model.save("weights-from-runs/4") # make a new folder for each new saved run
 
 # Load in test images (outside dataset) using Keras preprocessing
 testImage('test-images/eli_w_mask.jpg')
