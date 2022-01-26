@@ -48,6 +48,7 @@ import tensorflow.keras.optimizers as optimizers
 import tensorflow.keras.utils as utils
 from keras.preprocessing import image
 import numpy as np
+import matplotlib.pyplot as plt
 
 class Net():
 	def __init__(self, image_size):
@@ -60,14 +61,16 @@ class Net():
 		# MaxPool2D (frame size) - default stride is frame size
 		self.model.add(layers.MaxPool2D(pool_size = 2))
 		# Output of second layer - 40 x 40 x 8
+		self.model.add(layers.BatchNormalization()) # normalize batches after MaxPool
 
 		# Conv2D (output depth, frame size) - default stride is 1
 		self.model.add(layers.Conv2D(24, 3, activation = 'relu'))
 		# Output of third layer - 38 x 38 x 16
 
 		# MaxPool2D (frame size)
-		# self.model.add(layers.MaxPool2D(pool_size = 2))
+		self.model.add(layers.MaxPool2D(pool_size = 2))
 		# Output of fourth layer - 19 x 19 x 16
+		self.model.add(layers.BatchNormalization()) # normalize again
 
 		# layers.Flatten() - no arguments needed to flatten the layers!
 		self.model.add(layers.Flatten())
@@ -78,6 +81,8 @@ class Net():
 		self.model.add(layers.Dense(1024, activation = 'relu'))
 		self.model.add(layers.Dense(256, activation = 'relu'))
 		self.model.add(layers.Dense(64, activation = 'relu'))
+
+		# batch normalization and dropout (small early/large dense layers)
 
 		# 'softmax' rescales the values to make a list of probabilities
 		# The values are all positive and add to one!
@@ -135,16 +140,16 @@ net = Net((128, 128, 3)) # size is 128 x 128 x 3: starting size for our net
 print(net)
 
 # Train the model
-net.model.fit(
+history = net.model.fit(
 	train,
 	batch_size = 32,
-	epochs = 100,
-	verbose = 2, # 2 = one line per epoch, 1 = progress bar, 0 = silent
+	epochs = 250, # do a lot! no worries overnight
+	verbose = 1, # 2 = one line per epoch, 1 = progress bar, 0 = silent
 	validation_data = test,
 	validation_batch_size = 32,
-	callbacks = cb.EarlyStopping(monitor = 'val_loss', patience = 2, restore_best_weights = True) # end the model when it's good enough
+	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/jan25-overnight", verbose = 1, save_only_best_model = True)
 )
-
+"""
 def testImage(pathToImage):
 	# Load the image from the path using Keras
 	imageToTest = image.load_img(pathToImage, target_size = (128, 128))
@@ -167,3 +172,17 @@ testImage('test-images/kasie_w_mask.jpg')
 testImage('test-images/jasper_w_mask.jpg')
 testImage('test-images/sasha_w_bad_mask.jpg')
 testImage('test-images/sasha_w_mask.jpg')
+"""
+
+def plot_graphs(history, metric):
+	plt.plot(history.history[metric])
+	plt.plot(history.history['val_'+metric], '')
+	plt.xlabel("Epochs")
+	plt.ylabel(metric)
+	plt.legend([metric, 'val_'+metric])
+
+plt.figure(figsize=(16, 6))
+plt.subplot(1, 2, 1)
+plot_graphs(history, 'accuracy')
+plt.subplot(1, 2, 2)
+plot_graphs(history, 'loss')

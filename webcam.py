@@ -12,10 +12,11 @@ camera = cv2.VideoCapture(0)
 faceCascade = cv2.CascadeClassifier("faceFinder.xml")
 
 # You can use this code to load any model saved on the system.
-savedModel = models.load_model("weights-from-runs/4")
+savedModel = models.load_model("weights-from-runs/jan25-overnight")
 
 # Declare method for guessing if someone is wearing a mask (see test.py)
 def testImage(imageData):
+	# TODO try/catch to save empty test images
 	# This is to resolve an issue with the tensor. The prediction requires
 	# a batch size, so this adds a batch size of 1 to the start of the array.
 	# It must also be 128 x 128 x 3, which this method resolves.
