@@ -55,7 +55,9 @@ class Net():
 		self.model = models.Sequential() 
 		# Conv2D (output depth, frame size, kwargs)
 		self.model.add(layers.Conv2D(16, 11, strides = 3, 
-			input_shape = image_size, activation = 'relu'))
+			input_shape = image_size))
+		# Add LeakyReLU activation to the layer afterwise
+		self.model.add(layers.LeakyReLU(alpha=0.1))
 		# Output of first layer - 80 x 80 x 8
 		
 		# MaxPool2D (frame size) - default stride is frame size
@@ -64,7 +66,8 @@ class Net():
 		self.model.add(layers.BatchNormalization()) # normalize batches after MaxPool
 
 		# Conv2D (output depth, frame size) - default stride is 1
-		self.model.add(layers.Conv2D(24, 3, activation = 'relu'))
+		self.model.add(layers.Conv2D(24, 3, strides = 1))
+		self.model.add(layers.LeakyReLU(alpha=0.1))
 		# Output of third layer - 38 x 38 x 16
 
 		# MaxPool2D (frame size)
@@ -78,9 +81,12 @@ class Net():
 
 		# Dense (layer size) is pretty obvious from here for the next layers
 		# They require an activation function (the same as Conv2D)
-		self.model.add(layers.Dense(1024, activation = 'relu'))
-		self.model.add(layers.Dense(256, activation = 'relu'))
-		self.model.add(layers.Dense(64, activation = 'relu'))
+		self.model.add(layers.Dense(1024))
+		self.model.add(layers.LeakyReLU(alpha=0.1))
+		self.model.add(layers.Dense(256))
+		self.model.add(layers.LeakyReLU(alpha=0.1))
+		self.model.add(layers.Dense(64))
+		self.model.add(layers.LeakyReLU(alpha=0.1))
 
 		# batch normalization and dropout (small early/large dense layers)
 
@@ -143,11 +149,11 @@ print(net)
 history = net.model.fit(
 	train,
 	batch_size = 32,
-	epochs = 250, # do a lot! no worries overnight
+	epochs = 500, # do a lot! no worries overnight
 	verbose = 1, # 2 = one line per epoch, 1 = progress bar, 0 = silent
 	validation_data = test,
 	validation_batch_size = 32,
-	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/jan25-overnight", verbose = 1, save_only_best_model = True)
+	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/jan26-1", verbose = 1, save_only_best_model = True)
 )
 """
 def testImage(pathToImage):
