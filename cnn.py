@@ -59,6 +59,7 @@ class Net():
 		# Add LeakyReLU activation to the layer afterwise
 		self.model.add(layers.LeakyReLU(alpha=0.1))
 		# Output of first layer - 80 x 80 x 8
+		self.model.add(layers.Dropout(0.2))
 		
 		# MaxPool2D (frame size) - default stride is frame size
 		self.model.add(layers.MaxPool2D(pool_size = 2))
@@ -69,6 +70,7 @@ class Net():
 		self.model.add(layers.Conv2D(24, 3, strides = 1))
 		self.model.add(layers.LeakyReLU(alpha=0.1))
 		# Output of third layer - 38 x 38 x 16
+		self.model.add(layers.Dropout(0.2))
 
 		# MaxPool2D (frame size)
 		self.model.add(layers.MaxPool2D(pool_size = 2))
@@ -149,11 +151,11 @@ print(net)
 history = net.model.fit(
 	train,
 	batch_size = 32,
-	epochs = 500, # do a lot! no worries overnight
+	epochs = 1000, # do a lot! no worries overnight
 	verbose = 1, # 2 = one line per epoch, 1 = progress bar, 0 = silent
 	validation_data = test,
 	validation_batch_size = 32,
-	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/jan26-1", verbose = 1, save_only_best_model = True)
+	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/jan27-1", verbose = 1, save_only_best_model = True)
 )
 """
 def testImage(pathToImage):
