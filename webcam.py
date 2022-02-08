@@ -12,20 +12,23 @@ camera = cv2.VideoCapture(0)
 faceCascade = cv2.CascadeClassifier("faceFinder.xml")
 
 # You can use this code to load any model saved on the system.
-savedModel = models.load_model("weights-from-runs/jan25-overnight")
+savedModel = models.load_model("weights-from-runs/jan26-1")
 
 # Declare method for guessing if someone is wearing a mask (see test.py)
 def testImage(imageData):
-	# TODO try/catch to save empty test images
-	# This is to resolve an issue with the tensor. The prediction requires
-	# a batch size, so this adds a batch size of 1 to the start of the array.
-	# It must also be 128 x 128 x 3, which this method resolves.
-	imageData = cv2.resize(imageData, (128, 128))
-	imageData = np.expand_dims(imageData, axis = 0)
-	prediction = savedModel.predict(imageData)
-	verdict = np.argmax(prediction, axis = 1) 
-	# 0 for mask wrong, 1 for mask right, 2 for no mask
-	return verdict
+	try: 
+		# The image be 128 x 128 x 3, which this method resolves.
+		imageData = cv2.resize(imageData, (128, 128))
+		# This is to resolve an issue with the tensor. The prediction requires
+		# a batch size, so this adds a batch size of 1 to the start of the array.
+		imageData = np.expand_dims(imageData, axis = 0)
+		prediction = savedModel.predict(imageData)
+		verdict = np.argmax(prediction, axis = 1) 
+		# 0 for mask wrong, 1 for mask right, 2 for no mask
+		return verdict
+	except:
+		print ("broke")
+		return 3 # this is the "image capture broke" return
 
 # This loop determines the camera's function.
 while True:
@@ -55,11 +58,13 @@ while True:
 		croppedFace = frame[x:x+w, y:y+h]
 		# Plug the data from the cropped face into the code
 		wearingMask = testImage(croppedFace)
-		color = (0, 0, 255) # red for no mask
+		color = (0, 0, 255) # red for no mask is the default
 		if wearingMask == 0: # 0 corresponds to a poorly worn mask
 			color = (0, 255, 255)
 		elif wearingMask == 1: # 1 corresponds to a good mask
 			color = (0, 255, 0)
+		elif wearingMask == 3: # 3 is a glitch, it'll be a blue rectangle
+			color = (255, 0, 0) # just to make it obvious that something broke
 
 		# Using the result from testing the image, color and draw the rectangle
 		cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
