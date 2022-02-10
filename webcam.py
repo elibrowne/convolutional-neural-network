@@ -12,7 +12,7 @@ camera = cv2.VideoCapture(0)
 faceCascade = cv2.CascadeClassifier("faceFinder.xml")
 
 # You can use this code to load any model saved on the system.
-savedModel = models.load_model("weights-from-runs/jan26-1")
+savedModel = models.load_model("weights-from-runs/feb8-1")
 
 # Declare method for guessing if someone is wearing a mask (see test.py)
 def testImage(imageData):
