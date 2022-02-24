@@ -86,7 +86,7 @@ class Net():
 
 # Create our training data (notes included on omitted parameters)
 train = utils.image_dataset_from_directory(
-	'masks', # directory
+	'masks-expanded', # directory
 	# labels are inferred as the names of the folders (omit)
 	label_mode = 'categorical', # one-hot encoding 
 	# class names are skipped because labeling is inferred
@@ -103,7 +103,7 @@ train = utils.image_dataset_from_directory(
 
 # The test data is formed using the same parameters, but it's a 'validation' subset
 test = utils.image_dataset_from_directory(
-	'masks', # directory
+	'masks-expanded', # directory
 	label_mode = 'categorical', # one-hot encoding 
 	image_size = (128, 128), # the size of images isn't 256 x 256
 	shuffle = True, # shuffling the images is based on the seed
@@ -120,9 +120,9 @@ print(net)
 history = net.model.fit(
 	train,
 	batch_size = 32,
-	epochs = 1000, # do a lot! no worries overnight
+	epochs = 2000, # do a lot! no worries overnight
 	verbose = 1, # 2 = one line per epoch, 1 = progress bar, 0 = silent
 	validation_data = test,
 	validation_batch_size = 32,
-	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/feb8-1", verbose = 1, save_only_best_model = True)
+	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/feb23-1", verbose = 1, save_only_best_model = True)
 )
