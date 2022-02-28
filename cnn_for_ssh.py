@@ -101,6 +101,23 @@ train = utils.image_dataset_from_directory(
 	# no symbolic links so, we don't need to follow links
 )
 
+print(len(train))
+# This code works on data augmentation: I've noticed that my dataset would result
+# in different things based on lighting, which I aim to change here. 
+changeContrast = models.Sequential([
+    layers.RandomContrast(0.2, input_shape = (128, 128, 3))
+])
+# train.map() applies the transformation in parentheses to each pair x,y 
+# in the dataset.  We only need to transform the x-values, we just pass
+# the y-values along passively.  Notice that the output of the lambda
+# function is a 2-tuple, which is the transformed image followed
+modifiedImages = train.map(lambda x, y: (changeContrast(x), y))
+modifiedImages = train.map(lambda x, y: (tf.image.random_brightness(x, 0.3), y))
+# Make sure you create *all* the transformed copies before assembling
+# them into a new training set.
+train = train.concatenate(modifiedImages)
+print(len(train))
+
 # The test data is formed using the same parameters, but it's a 'validation' subset
 test = utils.image_dataset_from_directory(
 	'masks-expanded', # directory
