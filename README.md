@@ -39,6 +39,11 @@ This was really good at classifying images from the dataset (95% validation accu
 
 I trained this model using an expanded dataset, which included thousands of computer-generated images of faces wearing masks, wearing masks incorrectly, or not wearing any masks. These photos are higher quality than those of the original dataset, and they’re more zoomed out, which adds some depth to the dataset. My biggest frustration with the additional photos is that every mask is blue—while this will help a lot with recognizing blue masks, I’m not sure that impact that it will have on masks that aren’t blue. 
 
+**128x128x3 → 40x40x16 (Leaky ReLU) → Dropout (0.2) → 20x20x16 → Batch Normalization → 18x18x24 (Leaky ReLU) → Dropout (0.2) → 9x9x24 → Batch Normalization → Dense (1024, 256, 64, 3, all Leaky ReLU)**
+<br>feb28-1 • loss: 4.3012e-04 - accuracy: 0.9996 - val_loss: 0.0215 - val_accuracy: 0.9577 (6000 epochs)
+
+This model utilized data augmentation to work on making accuracy higher for different light conditions and color schemes. I used `layers.RandomContrast(0.2)` and `tf.image.random_brightness(x, 0.3)` to change the sizes, and then concatenated the edited images with the original dataset. It took much longer to run. 
+
 ### Observations on the network 
 
 *Note: this is old; I've left it here because addressing these challenges has guided some of my work since.* I've tried out a few images of myself and some friends (with permission, of course!) in different trial runs of the convolutional neural network. What I've found is that head-on images, like `eli_w_mask.jpg`, work much better than images from the side, like `jasper_w_mask.jpg`. Scrolling through the dataset, this seems somewhat understandable: the images in the dataset are all very much zoomed in, head-on, and distorted, but not really to the side as seen in some of the sample images. (On the other hand, it makes me less worried about distorting images!) In implementation, being able to extract pictures of the face that are mainly head-on would be very useful.
