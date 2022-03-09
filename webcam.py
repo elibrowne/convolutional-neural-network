@@ -12,7 +12,7 @@ camera = cv2.VideoCapture(0)
 faceCascade = cv2.CascadeClassifier("faceFinder.xml")
 
 # You can use this code to load any model saved on the system.
-savedModel = models.load_model("weights-from-runs/feb23-2")
+savedModel = models.load_model("weights-from-runs/mar2-1")
 
 # Declare method for guessing if someone is wearing a mask (see test.py)
 def testImage(imageData):
@@ -29,6 +29,9 @@ def testImage(imageData):
 	except:
 		print ("broke")
 		return 3 # this is the "image capture broke" return
+
+# Alternating dataset for testing
+TESTING_THREE_CLASSES = False
 
 # This loop determines the camera's function.
 while True:
@@ -59,12 +62,16 @@ while True:
 		# Plug the data from the cropped face into the code
 		wearingMask = testImage(croppedFace)
 		color = (0, 0, 255) # red for no mask is the default
-		if wearingMask == 0: # 0 corresponds to a poorly worn mask
-			color = (0, 255, 255)
-		elif wearingMask == 1: # 1 corresponds to a good mask
-			color = (0, 255, 0)
-		elif wearingMask == 3: # 3 is a glitch, it'll be a blue rectangle
-			color = (255, 0, 0) # just to make it obvious that something broke
+		if TESTING_THREE_CLASSES:
+			if wearingMask == 0: # 0 corresponds to a poorly worn mask
+				color = (0, 255, 255)
+			elif wearingMask == 1: # 1 corresponds to a good mask
+				color = (0, 255, 0)	
+		else:
+			if wearingMask == 0:
+				color = (0, 255, 0)
+		if wearingMask == 3: # 3 is a glitch, it'll be a blue rectangle
+				color = (255, 0, 0) # just to make it obvious that something broke
 
 		# Using the result from testing the image, color and draw the rectangle
 		cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)

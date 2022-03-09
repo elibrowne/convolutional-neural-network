@@ -42,7 +42,14 @@ I trained this model using an expanded dataset, which included thousands of comp
 **128x128x3 → 40x40x16 (Leaky ReLU) → Dropout (0.2) → 20x20x16 → Batch Normalization → 18x18x24 (Leaky ReLU) → Dropout (0.2) → 9x9x24 → Batch Normalization → Dense (1024, 256, 64, 3, all Leaky ReLU)**
 <br>feb28-1 • loss: 4.3012e-04 - accuracy: 0.9996 - val_loss: 0.0215 - val_accuracy: 0.9577 (6000 epochs)
 
-This model utilized data augmentation to work on making accuracy higher for different light conditions and color schemes. I used `layers.RandomContrast(0.2)` and `tf.image.random_brightness(x, 0.3)` to change the sizes, and then concatenated the edited images with the original dataset. It took much longer to run. 
+This model utilized data augmentation to work on making accuracy higher for different light conditions and color schemes. I used `layers.RandomContrast(0.2)` and `tf.image.random_brightness(x, 0.3)` to change the sizes, and then concatenated the edited images with the original dataset. It took much longer to run. Overall, I am not actually seeing much improvement on my own face from this dataset. It is much more frequent/happy in classifying something as a poorly-worn mask (yellow) on both blue and black masks. On blue masks, it seems a bit more accurate in reaching a well-worn mask (green), but it's harder to get it to register a well-wron mask. On bare faces, these networks seem to all default to a poorly-worn mask, and not a no mask at all situation. 
+
+This has posed a new idea for me: setting up two neural networks, one of which classifies a correct mask from an incorrect/nonexistent one before the other determines whether the wrong mask is incorrect or nonexistent. I think that this might help the network identify important ideas (like noses being visible, etc.) before moving to the question of if a mask is present at all. 
+
+**128x128x3 → 40x40x16 (Leaky ReLU) → Dropout (0.2) → 20x20x16 → Batch Normalization → 18x18x24 (Leaky ReLU) → Dropout (0.2) → 9x9x24 → Batch Normalization → Dense (1024, 256, 64, 2, all Leaky ReLU)**
+<br>mar2-1 • loss: 3.9479e-04 - accuracy: 0.9998 - val_loss: 0.0272 - val_accuracy: 0.9675 (5000 epochs)
+
+I've decided to try to create a network with two classes (a correctly worn mask and one that isn't correct, either from being worn wrong or not having a mask present), which I think may make it easier for the neural network. I trained this network on an awkwardly-sized dataset (more incorrect images than correct ones), which may explain a bias towards incorrect masks. In my personal experience, this network was more accurate with blue masks than with black ones. 
 
 ### Observations on the network 
 
