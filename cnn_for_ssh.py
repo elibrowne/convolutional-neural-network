@@ -101,35 +101,9 @@ train = utils.image_dataset_from_directory(
 	# no symbolic links so, we don't need to follow links
 )
 
-# This code works on data augmentation: I've noticed that my dataset would result
-# in different things based on lighting, which I aim to change here. 
-
-# Because I've decided to run the code focusing on two classes (correct mask or
-# not) rather than three classes (correct, incorrect, nonexistent), I've tried
-# to make up for the data imbalance. 
-
-duplicatedPassingImagesTrain = utils.image_dataset_from_directory(
-	'mask-present-imgs',
-	label_mode = 'categorical',
-	image_size = (128, 128),
-	shuffle = True,
-	seed = 18, # different seed? I don't think it matters
-	validation_split = 0.3, # same ratio as above
-	subset = 'training'
-)
-
-# Do some changes on the duplicated images so they look different.
-augmentDuplicatedData = models.Sequential([
-	layers.RandomRotation(0.17, input_shape = (128, 128, 3))
-])
-
-# Change to class one (correctly worn mask) b/c it's at 0 right now
-addToTrainDataset = duplicatedPassingImagesTrain.map(lambda x, y: (augmentDuplicatedData(x), y))
-train = train.concatenate(addToTrainDataset)
-
-# Here, we augment all of the data, including the duplicated images.
+# Here, we augment all of the data to improve accuracy under different lighting.
 changeContrast = models.Sequential([
-	# You can use layers to change contrast but not brightness.
+	# You can use layers to change contrast but not brightness (?)
     layers.RandomContrast(0.2, input_shape = (128, 128, 3))
 ])
 
