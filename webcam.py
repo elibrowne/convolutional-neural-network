@@ -12,7 +12,7 @@ camera = cv2.VideoCapture(0)
 faceCascade = cv2.CascadeClassifier("faceFinder.xml")
 
 # You can use this code to load any model saved on the system.
-savedModel = models.load_model("weights-from-runs/mar2-1")
+savedModel = models.load_model("weights-from-runs/mar11-1")
 
 # Declare method for guessing if someone is wearing a mask (see test.py)
 def testImage(imageData):
@@ -21,10 +21,12 @@ def testImage(imageData):
 		imageData = cv2.resize(imageData, (128, 128))
 		# This is to resolve an issue with the tensor. The prediction requires
 		# a batch size, so this adds a batch size of 1 to the start of the array.
+		cv2.imshow("testing image", imageData)
 		imageData = np.expand_dims(imageData, axis = 0)
 		prediction = savedModel.predict(imageData)
 		verdict = np.argmax(prediction, axis = 1) 
-		# 0 for mask wrong, 1 for mask right, 2 for no mask
+		# 3 cases: 0 for mask wrong, 1 for mask right, 2 for no mask
+		# 2 cases: 0 for mask right, 1 for mask wrong
 		return verdict
 	except:
 		print ("broke")
@@ -58,21 +60,27 @@ while True:
 	# For each face found, extract the image, test, and label accordingly
 	for (x, y, w, h) in faces:
 		# Crop out the image of the face (any dimension)
-		croppedFace = frame[x:x+w, y:y+h]
+		croppedFace = frame[y:y+h, x:x+w]
 		# Plug the data from the cropped face into the code
 		wearingMask = testImage(croppedFace)
-		color = (0, 0, 255) # red for no mask is the default
+		print(wearingMask)
+	
+		color = (255, 0, 0) # blue (error) will be the default settings
+		# THREE CLASSES (CORRECT, INCORRECT, NONE)
 		if TESTING_THREE_CLASSES:
 			if wearingMask == 0: # 0 corresponds to a poorly worn mask
 				color = (0, 255, 255)
 			elif wearingMask == 1: # 1 corresponds to a good mask
 				color = (0, 255, 0)	
+			elif wearingMask == 2: # 2 corresponds to no mask
+				color = (0, 0, 255)
+		# TWO CLASSES (CORRECT, INCORRECT/NONE)
 		else:
-			if wearingMask == 0:
+			if wearingMask == 1: # flipping... are the classes wrong?
 				color = (0, 255, 0)
-		if wearingMask == 3: # 3 is a glitch, it'll be a blue rectangle
-				color = (255, 0, 0) # just to make it obvious that something broke
-
+			elif wearingMask == 0:
+				color = (0, 0, 255)
+		
 		# Using the result from testing the image, color and draw the rectangle
 		cv2.rectangle(frame, (x, y), (x+w, y+h), color, 2)
 

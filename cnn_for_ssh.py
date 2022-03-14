@@ -140,5 +140,5 @@ history = net.model.fit(
 	verbose = 1, # 2 = one line per epoch, 1 = progress bar, 0 = silent
 	validation_data = test,
 	validation_batch_size = 32,
-	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/mar9-1", verbose = 1, save_only_best_model = True)
+	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/mar11-1", verbose = 1, save_only_best_model = True)
 )
