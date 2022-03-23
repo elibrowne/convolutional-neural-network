@@ -12,7 +12,9 @@ camera = cv2.VideoCapture(0)
 faceCascade = cv2.CascadeClassifier("faceFinder.xml")
 
 # You can use this code to load any model saved on the system.
-savedModel = models.load_model("weights-from-runs/mar11-1")
+savedModel = models.load_model("weights-from-runs/mar22-1")
+# Some datasets classify three (mask good, mask bad, no mask), some only test for mask good
+TESTING_THREE_CLASSES = False
 
 # Declare method for guessing if someone is wearing a mask (see test.py)
 def testImage(imageData):
@@ -31,9 +33,6 @@ def testImage(imageData):
 	except:
 		print ("broke")
 		return 3 # this is the "image capture broke" return
-
-# Alternating dataset for testing
-TESTING_THREE_CLASSES = False
 
 # This loop determines the camera's function.
 while True:
@@ -68,11 +67,11 @@ while True:
 		color = (255, 0, 0) # blue (error) will be the default settings
 		# THREE CLASSES (CORRECT, INCORRECT, NONE)
 		if TESTING_THREE_CLASSES:
-			if wearingMask == 0: # 0 corresponds to a poorly worn mask
+			if wearingMask == 1: # 1 corresponds to a poorly worn mask
 				color = (0, 255, 255)
-			elif wearingMask == 1: # 1 corresponds to a good mask
+			elif wearingMask == 2: # 2 corresponds to a good mask
 				color = (0, 255, 0)	
-			elif wearingMask == 2: # 2 corresponds to no mask
+			elif wearingMask == 0: # 0 corresponds to no mask
 				color = (0, 0, 255)
 		# TWO CLASSES (CORRECT, INCORRECT/NONE)
 		else:

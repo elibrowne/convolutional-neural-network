@@ -86,7 +86,7 @@ class Net():
 
 # Create our training data (notes included on omitted parameters)
 train = utils.image_dataset_from_directory(
-	'mask-present-dataset', # directory
+	'bad-mask-dataset', # directory
 	# labels are inferred as the names of the folders (omit)
 	label_mode = 'categorical', # one-hot encoding 
 	# class names are skipped because labeling is inferred
@@ -102,24 +102,27 @@ train = utils.image_dataset_from_directory(
 )
 
 # Here, we augment all of the data to improve accuracy under different lighting.
-changeContrast = models.Sequential([
-	# You can use layers to change contrast but not brightness (?)
-    layers.RandomContrast(0.2, input_shape = (128, 128, 3))
-])
+def augmentImage(image):
+	image = tf.image.random_brightness(image, 0.25)
+	image = tf.image.random_contrast(image, 0.5, 1.5)
+	image = tf.image.random_hue(image, 0.1)
+	image = tf.image.random_saturation(image, 0.75, 1.25)
+	return image
 
 # FROM DR. J'S DATA AUGMENTATION
 # train.map() applies the transformation in parentheses to each pair x,y 
 # in the dataset.  We only need to transform the x-values, we just pass
 # the y-values along passively.  Notice that the output of the lambda
-# function is a 2-tuple, which is the transformed image followed
-modifiedImages = train.map(lambda x, y: (changeContrast(x), y))
-# Here, I change brightness (I think this is how one does that?)
-modifiedImages = train.map(lambda x, y: (tf.image.random_brightness(x, 0.3), y))
+# function is a 2-tuple, which is the transformed image followed.
+
+# I've changed the data augmentation method to include much more, which will 
+# hopefully improve accuracy under different lighting conditions.
+modifiedImages = train.map(lambda x, y: (augmentImage(x), y))
 train = train.concatenate(modifiedImages)
 
 # The test data is formed using the same parameters, but it's a 'validation' subset
 test = utils.image_dataset_from_directory(
-	'mask-present-dataset', # directory
+	'bad-mask-dataset', # directory
 	label_mode = 'categorical', # one-hot encoding 
 	image_size = (128, 128), # the size of images isn't 256 x 256
 	shuffle = True, # shuffling the images is based on the seed
@@ -140,5 +143,5 @@ history = net.model.fit(
 	verbose = 1, # 2 = one line per epoch, 1 = progress bar, 0 = silent
 	validation_data = test,
 	validation_batch_size = 32,
-	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/mar11-1", verbose = 1, save_only_best_model = True)
+	callbacks = cb.ModelCheckpoint(filepath = "weights-from-runs/mar23-1", verbose = 1, save_only_best_model = True)
 )
