@@ -56,6 +56,16 @@ I've decided to try to create a network with two classes (a correctly worn mask 
 
 This network actually worked pretty well. When looking at it straight on, assuming the classes are `without_passing_mask` for `[0]` and `with_passing_mask` for `[1]`, it identifies blue masks quite well and other colored masks at a pretty solid level. It does seem a bit skewed when rotated, which may have to do with the data augmentation used. 
 
+**128x128x3 → 40x40x16 (Leaky ReLU) → Dropout (0.2) → 20x20x16 → Batch Normalization → 18x18x24 (Leaky ReLU) → Dropout (0.2) → 9x9x24 → Batch Normalization → Dense (1024, 256, 64, 2, all Leaky ReLU)**
+<br>mar22-1 • loss: 4.1634e-04 - accuracy: 0.9999 - val_loss: 0.0307 - val_accuracy: 0.9606
+
+I strengthened the data augmentation further, changing colors, lighting, and more to try to improve accuracy. To me, my mask good/not good network works on blue masks in good lighting, but I'd like to see that extended to less ideal circumstances. 
+
+**128x128x3 → 40x40x16 (Leaky ReLU) → Dropout (0.2) → 20x20x16 → Batch Normalization → 18x18x24 (Leaky ReLU) → Dropout (0.2) → 9x9x24 → Batch Normalization → Dense (1024, 256, 64, 2, all Leaky ReLU)**
+<br>mar23-1 • loss: 1.6973e-04 - accuracy: 0.9999 - val_loss: 0.0036 - val_accuracy: 0.9958 (4000 epochs)
+
+This net classifies between images where a mask is worn poorly and images where a mask is not present. It's used in tandem with an above classifier which determines if a mask is worn well or if there is no well worn mask in the image.
+
 ### Observations on the network 
 
 *Note: this is old; I've left it here because addressing these challenges has guided some of my work since.* I've tried out a few images of myself and some friends (with permission, of course!) in different trial runs of the convolutional neural network. What I've found is that head-on images, like `eli_w_mask.jpg`, work much better than images from the side, like `jasper_w_mask.jpg`. Scrolling through the dataset, this seems somewhat understandable: the images in the dataset are all very much zoomed in, head-on, and distorted, but not really to the side as seen in some of the sample images. (On the other hand, it makes me less worried about distorting images!) In implementation, being able to extract pictures of the face that are mainly head-on would be very useful.
