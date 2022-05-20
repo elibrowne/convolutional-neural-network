@@ -26,7 +26,32 @@ maskBlueEnd = np.array([107, 255, 255]) # lightest mask color swatched from data
 
 maskOfMask = cv2.inRange(hsvImage, maskBlueStart, maskBlueEnd)
 
+""" 
 image[maskOfMask > 0] = (0, 0, 255) # highlight the selected region as red
 
 cv2.imshow("Masked Image", image)
+cv2.waitKey(0)
+"""
+
+def darken(colors, factor):
+	# Factors - 0.5 for gray, 0.2 for black
+	darkenedPixel = []
+	for term in colors:
+		darkenedPixel.append(factor * term)
+	return darkenedPixel 
+
+def redden(colors, factor):
+	# Factor - 2 for a good strong red
+	print(colors)
+	reddenedPixel = [0, 0, 255]
+	reddenedPixel[0] = colors[0]
+	reddenedPixel[1] = colors[1] 
+	reddenedPixel[2] = colors[2] * factor 
+	print(reddenedPixel[2])
+	return reddenedPixel
+
+# Let's edit the selected region to be darker.
+image[maskOfMask > 0] = redden(image[maskOfMask > 0], 2)
+
+cv2.imshow("Edited Image", image)
 cv2.waitKey(0)
